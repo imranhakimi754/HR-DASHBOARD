@@ -1,0 +1,63 @@
+CREATE DATABASE projects;
+
+use projects;
+
+select * from hr;
+
+alter table hr
+CHANGE COLUMN ï»¿id emp_id VARCHAR(20) NULL;
+
+DESCRIBE hr;
+
+SELECT birthdate, 
+       STR_TO_DATE(birthdate, '%m/%d/%Y') AS converted_slash,
+       STR_TO_DATE(birthdate, '%m-%d-%Y') AS converted_dash
+FROM hr
+WHERE birthdate LIKE '%/%/%' OR birthdate LIKE '%-%-%';
+
+UPDATE hr
+SET birthdate = CASE
+    WHEN birthdate LIKE '%/%/%' THEN DATE_FORMAT(STR_TO_DATE(birthdate, '%m/%d/%Y'), '%Y-%m-%d')
+    WHEN birthdate LIKE '%-%-%' THEN DATE_FORMAT(STR_TO_DATE(birthdate, '%m-%d-%Y'), '%Y-%m-%d')
+    ELSE birthdate  -- Keeps unchanged if format is unexpected
+END
+WHERE birthdate LIKE '%/%/%' OR birthdate LIKE '%-%-%';
+
+alter table hr
+modify column birthdate DATE;
+
+update hr
+SET birthdate = CASE
+    WHEN birthdate LIKE '%/%/%' THEN DATE_FORMAT(STR_TO_DATE(birthdate, '%m/%d/%Y'), '%Y-%m-%d')
+    WHEN birthdate LIKE '%-%-%' THEN DATE_FORMAT(STR_TO_DATE(birthdate, '%m-%d-%Y'), '%Y-%m-%d')
+    ELSE birthdate  -- Keeps unchanged if format is unexpected
+END
+WHERE birthdate LIKE '%/%/%' OR birthdate LIKE '%-%-%';
+
+alter table hr
+modify column hire_date DATE;
+
+select termdate from hr;
+
+
+UPDATE hr
+SET termdate = CASE 
+    WHEN TRIM(termdate) = '' THEN NULL  -- Convert empty strings to NULL
+    WHEN termdate LIKE '%UTC' THEN DATE(STR_TO_DATE(REPLACE(termdate, ' UTC', ''), '%Y-%m-%d %H:%i:%s'))
+    ELSE DATE(STR_TO_DATE(termdate, '%Y-%m-%d'))
+END;
+
+ALTER TABLE hr
+MODIFY COLUMN termdate DATE NULL;
+
+alter table hr 
+add column age INT;
+
+UPDATE hr
+SET age = TIMESTAMPDIFF(YEAR, birthdate, CURDATE())
+WHERE birthdate IS NOT NULL;
+
+
+
+
+
